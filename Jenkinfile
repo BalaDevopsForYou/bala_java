@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    tools {
+        maven 'MAVEN'
+    }
+    stages {
+        stage("code checkout") {
+            steps {
+                git credentialsId: 'jenkins-github', url: 'https://github.com/BalaDevopsForYou/bala_java.git', branch: 'master'
+            }
+        }
+        stage('build the application') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('sonarscan') {
+             environment {
+                  SONAR_URL = 'http://54.236.44.132:9000'
+              }   
+             steps {
+                  script {
+                      withCredentials([string(credentialsId: 'jenkins-sonar', variable: 'SONAR_TOKEN')]) {
+                       sh "mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN"
+                        }
+                    }
+                }
+         }
+
+    }
+    post {
+        success {
+            echo 'Build was successful'
+        }
+        failure {
+            echo 'Build has failed'
+        }
+    }
+}
