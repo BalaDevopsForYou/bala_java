@@ -1,18 +1,23 @@
 @Library('my-shared-library') _
-pipeline{
-     
-     agent any
-      stages{
-        stage('say-hello'){
-            steps{
-                script{
-                    timestamps{
-                       helloWorld.hello()
-                       sh 'echo "my groovy ends here....."' 
+
+pipeline {
+    agent any
+    stages {
+        stage('say-hello') {
+            steps {
+                script {
+                    timestamps {
+                        try {
+                            helloWorld.hello()
+                            sh 'echo "code executed successfully..."'
+                        } catch (Exception e) {
+                            currentBuild.result = "FAILURE"
+                            error "Failed to run the Shared Library function: ${e.message}"
+                        }
+                          sh 'echo "groovy related function script execution ends here.."'
                     }
-                    
                 }
             }
         }
-    }  
-   }
+    }
+}
