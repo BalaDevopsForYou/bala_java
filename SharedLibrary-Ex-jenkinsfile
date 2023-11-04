@@ -1,7 +1,7 @@
 @Library('my-shared-library') _
 pipeline{
-    timestamps{
-         agent any
+     
+     agent any
       stages{
         stage('say-hello'){
             steps{
@@ -15,7 +15,4 @@ pipeline{
             }
         }
     }  
-    }
-   
-    
-}
+   }
