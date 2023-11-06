@@ -1,0 +1,34 @@
+pipeline{
+    agent any
+    tools{
+        maven 'MAVEN'
+    }
+    stages{
+        stage('clone'){
+            steps{
+                git credentialsId: 'jenkins-github', url: 'https://github.com/BalaDevopsForYou/bala_java.git', branch: 'master'
+            }
+        }
+        stage('build'){
+            steps{
+                sh 'mvn clean install'
+            }
+        }
+        // once the war file generated, created runtime environment with docker
+        stage('docker-build&publish'){
+            steps{
+                script{
+                    withDockerRegistry(credentialsId: 'jenkins-docker', toolName: 'DOCKER') {
+                      sh '''
+                      docker build -t "balanew-web-app:v1" .
+                      docker tag balanew-web-app:v1 balaknuthi/balanew-web-app:v1
+                      docker push balaknuthi/balanew-web-app:v1
+                      '''
+                    }
+                    
+                }
+            }
+        }
+        
+    }
+}
